@@ -1,6 +1,10 @@
 import { useState, useRef, useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { ButtonTool } from '@/shared/components/ButtonTool'
 import { iconsSelect } from './icons/IconsSelect'
+import { setDrawingMode } from '@/shared/redux/features/mapSlice'
+import { createFeatureCollection } from '@/features/map/services/featureAPI'
+import { toast } from 'sonner'
 
 const SelectDropdown = ({ onSelectTool }) => {
 	const [showDropdown, setShowDropdown] = useState(false)
@@ -62,9 +66,57 @@ const SelectDropdown = ({ onSelectTool }) => {
 }
 
 const SelectToolbar = () => {
+	const dispatch = useDispatch();
+	const { mapBoxDrawStateRef } = useSelector((state) => state.mapReducer);
+
+	const toolKeyToDrawMode = {
+		poligono: 'draw_polygon',
+		linea: 'draw_line_string',
+		punto: 'draw_point',
+		circulo: 'draw_circle',
+		extension: 'draw_rectangle',
+		lazo: 'draw_freehand',
+	};
+
 	const handleToolSelection = (toolKey) => {
-		console.log('Herramienta seleccionada:', toolKey)
+		const drawMode = toolKeyToDrawMode[toolKey];
+		if (drawMode) {
+			dispatch(setDrawingMode(drawMode));
+		} else {
+			dispatch(setDrawingMode('simple_select'));
+		}
 	}
+
+	const handleSave = async () => {
+		if (!mapBoxDrawStateRef) {
+			toast.error("Error: La referencia del control de dibujo no está disponible.");
+			return;
+		}
+
+		const drawnFeatures = mapBoxDrawStateRef.getAll();
+		if (drawnFeatures.features.length === 0) {
+			toast.info("No hay geometrías para guardar.");
+			return;
+		}
+
+		// Prepare payload for backend by stripping client-side IDs
+		const payload = {
+			type: "FeatureCollection",
+			features: drawnFeatures.features.map(f => {
+				const { id, ...rest } = f;
+				return rest;
+			})
+		};
+
+		try {
+			await createFeatureCollection(payload);
+			toast.success("Geometrías guardadas correctamente.");
+			mapBoxDrawStateRef.deleteAll();
+		} catch (error) {
+			toast.error("Error al guardar las geometrías.");
+			console.error(error);
+		}
+	};
 
 	return (
 		<div className="flex items-center bg-white shadow-sm w-auto overflow-hidden text-[10px] gap-1 h-full">
@@ -92,6 +144,12 @@ const SelectToolbar = () => {
 			{/* Opciones */}
 			<div className="border-r border-gray-300 flex flex-col justify-between h-full">
 				<div className="flex items-center h-full">
+					<ButtonTool
+						className='w-[70px] hover:bg-sky-200 h-full'
+						icon={iconsSelect.opciones.exportar} // Re-using export icon for save
+						label="Guardar"
+						onClick={handleSave}
+					/>
 					<ButtonTool
 						className='w-[70px] hover:bg-sky-200 h-full'
 						icon={iconsSelect.opciones.exportar}

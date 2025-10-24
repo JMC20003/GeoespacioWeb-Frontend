@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import Map from 'react-map-gl/maplibre';
 import mapLibregl from 'maplibre-gl';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { NavigationControl, ScaleControl } from 'react-map-gl';
 
 //components
@@ -9,9 +9,20 @@ import { setMapref } from '@/shared/redux/features/mapSlice';
 import { useGlobalState } from '@/shared/context/GlobalState';
 import  DrawControl  from './components/toolbox/Toolbar'
 import { CustomLayers } from './components/layers/CustomLayers';
+import { BackendFeaturesLayer } from './components/BackendFeaturesLayer';
+import { BackendPuntosLayer } from './components/BackendPuntosLayer';
+import { BackendLineasLayer } from './components/BackendLineasLayer';
+import { BackendZonasLayer } from './components/BackendZonasLayer';
+import { useDrawingManager } from '@/shared/hooks/useDrawingManager';
 
 export const MapContainer = () => {
     const dispatch = useDispatch()
+    const { backendFeatures } = useSelector((state) => state.mapReducer);
+    const { Lineas } = useSelector((state) => state.mapReducer);
+    const { Puntos } = useSelector((state) => state.mapReducer);
+    const { Zonas } = useSelector((state) => state.mapReducer);
+
+    useDrawingManager();
 
     const INITIAL_POSITION = {
         latitude: -12.020545729298373,
@@ -69,6 +80,10 @@ export const MapContainer = () => {
             style={{width: '100dvw', height: '100dvh'}}
             preserveDrawingBuffer={true}
         >  
+          <BackendFeaturesLayer features={backendFeatures} />
+          <BackendPuntosLayer features={Puntos}/>
+          <BackendLineasLayer features={Lineas}/>
+          <BackendZonasLayer features={Zonas}/>
           <DrawControl position="top-left" modeChange={modeChange}/>
           <NavigationControl position='top-left' />
           <ScaleControl position='bottom-left' maxWidth={100} unit='metric'/>

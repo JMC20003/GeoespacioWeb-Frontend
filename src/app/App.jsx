@@ -8,6 +8,8 @@ import { useDispatch } from 'react-redux';
 import { setLayerData } from "@/shared/redux/features/mapSlice";
 import { getAllTables } from "@/shared/services/tableServices";
 
+import { Toaster } from 'sonner';
+
 function App() {
   const [isLoading, setIsLoading] = useState(false)
   const dispatch = useDispatch();
@@ -34,6 +36,7 @@ function App() {
 
   return (
     <>
+      <Toaster richColors />
       <RouteIndex />
     </>
   )
