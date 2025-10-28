@@ -13,23 +13,31 @@ const DrawControl = forwardRef((props, ref) => {
   const modes = MapboxDraw.modes;
   modes.draw_rectangle = DrawRectangle;
   modes.draw_circle = DragCircleCustomMode;
+  modes.draw_line_string = MapboxDraw.modes.draw_line_string;
 
-  const draw = useControl(
-    () => new MapboxDraw({
-      displayControlsDefault: false, 
-      controls:{
-        point: false,
-        line_string: false,
-        polygon: false
-      },
-      userProperties: true,
-      styles: SRStyle,
-      modes: Object.assign(modes, {
-        scaleRotateMode: SRMode,
-        draw_freehand:FreehandMode,
-      }),
-    }),
-    ({ map }) => {
+    const draw = useControl(
+      () => {
+                    const customModes = {
+                      ...MapboxDraw.modes, // Start with all default modes
+                      draw_rectangle: DrawRectangle, // Override default rectangle
+                      draw_circle: DragCircleCustomMode, // Override default circle
+                      draw_line_string: MapboxDraw.modes.draw_line_string, // Explicitly use default line string
+                      scaleRotateMode: SRMode, // Add custom scale/rotate mode
+                      draw_freehand: FreehandMode, // Add custom freehand mode
+                    };
+              
+                    return new MapboxDraw({
+                      displayControlsDefault: false, 
+                      controls:{
+                        point: false,
+                        line_string: false,
+                        polygon: false
+                      },
+                      userProperties: true,
+                      styles: SRStyle,
+                      modes: customModes, // Use the explicitly defined customModes object
+                    });
+                  },    ({ map }) => {
       map.on('draw.create', props.onCreate);
       map.on('draw.update', props.onUpdate);
       map.on('draw.delete', props.onDelete);

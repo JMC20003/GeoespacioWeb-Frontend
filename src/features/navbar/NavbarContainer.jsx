@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { HamburgerMenuIcon } from '@radix-ui/react-icons';
+import { HamburgerMenuIcon, Pencil1Icon, TrashIcon } from '@radix-ui/react-icons';
 import LayerMapBaseOptions from './components/BaselayerMap/LayerMapBaseOptions';
 import PersonCountButtonn from './components/personCount/PersonCountButtonn';
 import { ButtonTool } from '../../shared/components/ButtonTool';
@@ -8,11 +8,18 @@ import { NAV_ITEMS } from './const/navItems';
 import MapToolBar from './tools/map/MapToolBar';
 import EditToolbar from './tools/edit/EditToolbar';
 import SelectToolbar from './tools/select/SelectToolBar';
+import { useSelector, useDispatch } from 'react-redux';
+import { setRefreshFeatures, setActiveTab } from '@/shared/redux/features/mapSlice';
 
 
 export default function NavbarContainer() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [navItems, setNavItems] = useState(NAV_ITEMS);
+  const { selectedFeatureId } = useSelector((state) => state.selectedFeatureReducer);
+  const { activeTab } = useSelector((state) => state.mapReducer);
+  const dispatch = useDispatch();
+
+  const navItems = NAV_ITEMS.map(item => ({ ...item, active: item.label.toLowerCase() === activeTab }));
+  console.log('activeTab:', activeTab, 'navItems:', navItems);
 
   return (
     <div className="absolute top-0 w-full h-auto z-[950]">
@@ -41,13 +48,7 @@ export default function NavbarContainer() {
                   label={item.label}
                   isActive={item.active}
                   onClick={() => {
-                    setNavItems((prev) =>
-                      prev.map((navItem) =>
-                        navItem.label === item.label
-                          ? { ...navItem, active: true }
-                          : { ...navItem, active: false }
-                      )
-                    );
+                    dispatch(setActiveTab(item.label.toLowerCase()));
                   }}
                   className={`
                         relative px-2 py-0 top-3.5 rounded-none
@@ -67,7 +68,7 @@ export default function NavbarContainer() {
 
           </div>
 
-          {/* Derecha: Selector de mapa base */}
+          {/* Derecha: Selector de mapa base y botones de acción */}
           <div className="flex flex-1 items-center justify-end gap-2">
             <LayerMapBaseOptions position={'top-right'} />
             <PersonCountButtonn name={'Demo person'} />

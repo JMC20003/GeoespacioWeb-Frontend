@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
+  baseURL: import.meta.env.VITE_BACKEND_API,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -26,3 +26,15 @@ export const getZonas = () => {
 export const getPuntos = () => {
   return apiClient.get('/puntos');
 }
+
+export const getFeatureById = (id) => {
+  return apiClient.get(`/feature/${id}`);
+};
+
+export const updateFeature = (id, feature) => {
+  return apiClient.put(`/feature/${id}`, feature);
+};
+
+export const deleteFeature = (id) => {
+  return apiClient.delete(`/feature/${id}`);
+};

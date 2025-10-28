@@ -19,19 +19,19 @@ export const SRCenter = {
 
 export const SRStyle = [
   {
-    id: 'gl-draw-polygon-fill-inactive',
+    id: 'global-polygon-fill-override',
     type: 'fill',
-    filter: [
-      'all',
-      ['==', 'active', 'false'],
-      ['==', '$type', 'Polygon'],
-      ['!=', 'user_type', 'overlay'],
-      ['!=', 'mode', 'static'],
-    ],
+    filter: ['==', '$type', 'Polygon'],
     paint: {
-      'fill-color': '#3bb2d0',
-      'fill-outline-color': '#3bb2d0',
-      'fill-opacity': 0.2,
+      'fill-opacity': 2,
+    },
+  },
+  {
+    id: 'no-line-fill-override',
+    type: 'fill',
+    filter: ['==', '$type', 'LineString'],
+    paint: {
+      'fill-opacity': 2,
     },
   },
   {
@@ -41,15 +41,23 @@ export const SRStyle = [
       'all',
       ['==', 'active', 'true'],
       ['==', '$type', 'Polygon'],
+      ['!=', '$type', 'LineString'],
       ['!=', 'user_type', 'overlay'],
     ],
     paint: {
       'fill-color': '#fbb03b',
       'fill-outline-color': '#fbb03b',
-      'fill-opacity': 0.2,
+      'fill-opacity': 0,
     },
   },
-
+  {
+    id: 'gl-draw-line-hot-fill-override',
+    type: 'fill',
+    filter: ['all', ['==', 'active', 'true'], ['==', '$type', 'LineString']],
+    paint: {
+      'fill-opacity': 0,
+    },
+  },
   {
     id: 'gl-draw-overlay-polygon-fill-inactive',
     type: 'fill',
@@ -63,22 +71,7 @@ export const SRStyle = [
     paint: {
       'fill-color': '#3bb2d0',
       'fill-outline-color': '#3bb2d0',
-      'fill-opacity': 0.01,
-    },
-  },
-  {
-    id: 'gl-draw-overlay-polygon-fill-active',
-    type: 'fill',
-    filter: [
-      'all',
-      ['==', 'active', 'true'],
-      ['==', '$type', 'Polygon'],
-      ['==', 'user_type', 'overlay'],
-    ],
-    paint: {
-      'fill-color': '#fbb03b',
-      'fill-outline-color': '#fbb03b',
-      'fill-opacity': 0.01,
+      'fill-opacity': 0,
     },
   },
 
@@ -99,6 +92,7 @@ export const SRStyle = [
     paint: {
       'line-color': '#3bb2d0',
       'line-width': 2,
+      'line-opacity': 1,
     },
   },
 
@@ -114,6 +108,7 @@ export const SRStyle = [
       'line-color': '#fbb03b',
       'line-dasharray': [0.2, 2],
       'line-width': 2,
+      'line-opacity': 1,
     },
   },
 
@@ -122,8 +117,9 @@ export const SRStyle = [
     type: 'circle',
     filter: ['all', ['==', '$type', 'Point'], ['==', 'meta', 'midpoint']],
     paint: {
-      'circle-radius': 3,
+      'circle-radius': 6,
       'circle-color': '#fbb03b',
+      'circle-opacity': 1,
     },
   },
 
@@ -142,7 +138,8 @@ export const SRStyle = [
     },
     paint: {
       'line-color': '#3bb2d0',
-      'line-width': 2,
+      'line-width': 1,
+      'line-opacity': 1,
     },
   },
   {
@@ -157,37 +154,18 @@ export const SRStyle = [
       'line-color': '#fbb03b',
       'line-dasharray': [0.2, 2],
       'line-width': 2,
+      'line-opacity': 1,
     },
   },
   {
     id: 'gl-draw-polygon-and-line-vertex-stroke-inactive',
     type: 'circle',
-    filter: [
-      'all',
-      ['==', 'meta', 'vertex'],
-      ['==', '$type', 'Point'],
-      ['!=', 'mode', 'static'],
-    ],
     paint: {
-      'circle-radius': 4,
-      'circle-color': '#fff',
+      'circle-radius': 6,
+      'circle-color': '#111111ff',
+      'circle-opacity': 1,
     },
   },
-  {
-    id: 'gl-draw-polygon-and-line-vertex-inactive',
-    type: 'circle',
-    filter: [
-      'all',
-      ['==', 'meta', 'vertex'],
-      ['==', '$type', 'Point'],
-      ['!=', 'mode', 'static'],
-    ],
-    paint: {
-      'circle-radius': 2,
-      'circle-color': '#fbb03b',
-    },
-  },
-
   {
     id: 'gl-draw-polygon-and-line-vertex-scale-icon',
     type: 'symbol',
@@ -206,14 +184,13 @@ export const SRStyle = [
       'icon-rotate': ['get', 'heading'],
     },
     paint: {
-      'icon-opacity': 1.0,
+      'icon-opacity': 1,
       'icon-opacity-transition': {
         delay: 0,
         duration: 0,
       },
     },
   },
-
   {
     id: 'gl-draw-point-point-stroke-inactive',
     type: 'circle',
@@ -227,7 +204,7 @@ export const SRStyle = [
     paint: {
       'circle-radius': 5,
       'circle-opacity': 1,
-      'circle-color': '#fff',
+      'circle-color': '#111111ff',
     },
   },
   {
@@ -243,20 +220,7 @@ export const SRStyle = [
     paint: {
       'circle-radius': 3,
       'circle-color': '#3bb2d0',
-    },
-  },
-  {
-    id: 'gl-draw-point-stroke-active',
-    type: 'circle',
-    filter: [
-      'all',
-      ['==', '$type', 'Point'],
-      ['==', 'active', 'true'],
-      ['!=', 'meta', 'midpoint'],
-    ],
-    paint: {
-      'circle-radius': 4,
-      'circle-color': '#fff',
+      'circle-opacity': 1,
     },
   },
   {
@@ -269,8 +233,9 @@ export const SRStyle = [
       ['==', 'active', 'true'],
     ],
     paint: {
-      'circle-radius': 2,
+      'circle-radius': 4,
       'circle-color': '#fbb03b',
+      'circle-opacity': 1,
     },
   },
   {
@@ -278,9 +243,9 @@ export const SRStyle = [
     type: 'fill',
     filter: ['all', ['==', 'mode', 'static'], ['==', '$type', 'Polygon']],
     paint: {
-      'fill-color': '#404040',
-      'fill-outline-color': '#404040',
-      'fill-opacity': 0.1,
+      'fill-color': '#111111ff',
+      'fill-outline-color': '#111111ff',
+      'fill-opacity': 1,
     },
   },
   {
@@ -292,8 +257,9 @@ export const SRStyle = [
       'line-join': 'round',
     },
     paint: {
-      'line-color': '#404040',
+      'line-color': '#111111ff',
       'line-width': 2,
+      'line-opacity': 1,
     },
   },
   {
@@ -305,8 +271,9 @@ export const SRStyle = [
       'line-join': 'round',
     },
     paint: {
-      'line-color': '#404040',
+      'line-color': '#111111ff',
       'line-width': 2,
+      'line-opacity': 1,
     },
   },
   {
@@ -315,21 +282,10 @@ export const SRStyle = [
     filter: ['all', ['==', 'mode', 'static'], ['==', '$type', 'Point']],
     paint: {
       'circle-radius': 5,
-      'circle-color': '#404040',
+      'circle-color': '#111111ff',
+      'circle-opacity': 1,
     },
   },
-
-  // {
-  //     'id': 'gl-draw-polygon-rotate-point',
-  //     'type': 'circle',
-  //     'filter': ['all',
-  //         ['==', '$type', 'Point'],
-  //         ['==', 'meta', 'rotate_point']],
-  //     'paint': {
-  //         'circle-radius': 5,
-  //         'circle-color': '#fbb03b'
-  //     }
-  // },
 
   {
     id: 'gl-draw-line-rotate-point',
@@ -350,21 +306,17 @@ export const SRStyle = [
       'line-color': '#fbb03b',
       'line-dasharray': [0.2, 2],
       'line-width': 2,
+      'line-opacity': 1,
     },
   },
   {
     id: 'gl-draw-polygon-rotate-point-stroke',
     type: 'circle',
-    filter: [
-      'all',
-      ['==', 'meta', 'midpoint'],
-      ['==', 'icon', 'rotate'],
-      ['==', '$type', 'Point'],
-      ['!=', 'mode', 'static'],
-    ],
+  
     paint: {
       'circle-radius': 4,
-      'circle-color': '#fff',
+      'circle-color': '#111111ff',
+      'circle-opacity': 1,
     },
   },
   {
@@ -380,6 +332,7 @@ export const SRStyle = [
     paint: {
       'circle-radius': 2,
       'circle-color': '#fbb03b',
+      'circle-opacity': 1,
     },
   },
   {
@@ -400,7 +353,7 @@ export const SRStyle = [
       'icon-rotate': ['get', 'heading'],
     },
     paint: {
-      'icon-opacity': 1.0,
+      'icon-opacity': 1,
       'icon-opacity-transition': {
         delay: 0,
         duration: 0,
@@ -516,6 +469,7 @@ SRMode.onSetup = function (opts) {
   
   addImageIfNotExists(this.map, 'rotate', rotate);
   addImageIfNotExists(this.map, 'scale', scale);
+  addImageIfNotExists(this.map, 'puntoAcceso', puntoAcceso);
 
   return state;
 };

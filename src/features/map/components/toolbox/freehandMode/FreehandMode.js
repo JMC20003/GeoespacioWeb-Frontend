@@ -39,7 +39,6 @@ FreehandMode.onDrag = FreehandMode.onTouchMove = function (state, e){
     this.updateUIClasses({ mouse: 'add' });
     state.polygon.updateCoordinate(`0.${state.currentVertexPosition}`, e.lngLat.lng, e.lngLat.lat);
     state.currentVertexPosition++;
-    state.polygon.updateCoordinate(`0.${state.currentVertexPosition}`, e.lngLat.lng, e.lngLat.lat);
 };
 
 FreehandMode.onMouseUp = function (state, e){
@@ -65,7 +64,7 @@ FreehandMode.fireUpdate = function(state) {
 };
 
 FreehandMode.simplify = function(polygon) {
-  const tolerance = 1 / Math.pow(1.05, 10 * this.map.getZoom());
+  const tolerance = 0.000000001 / Math.pow(1.05, 10 * this.map.getZoom());
   turf.simplify(polygon, {
       mutate: true,
       tolerance: tolerance,

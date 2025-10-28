@@ -38,6 +38,7 @@ const initialState = {
   mapRef: null,
   layerData: null,
   drawingMode: null,
+  refreshFeatures: 0,
 
   backendFeatures: null,
   status: 'idle', // 'idle' | 'loading' | 'succeeded' | 'failed' for features
@@ -58,6 +59,7 @@ const initialState = {
   zonasStatus: 'idle',
   zonasError: null,
   zonasVisible: true,
+  activeTab: 'mapa',
 };
 
 export const map_slice = createSlice({
@@ -87,6 +89,12 @@ export const map_slice = createSlice({
     },
     toggleZonasVisibility: (state) => {
       state.zonasVisible = !state.zonasVisible;
+    },
+    setRefreshFeatures: (state) => {
+      state.refreshFeatures += 1;
+    },
+    setActiveTab: (state, action) => {
+      state.activeTab = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -152,6 +160,8 @@ export const {
   togglePuntosVisibility,
   toggleLineasVisibility,
   toggleZonasVisibility,
+  setRefreshFeatures,
+  setActiveTab,
 } = map_slice.actions;
 
 export default map_slice.reducer;

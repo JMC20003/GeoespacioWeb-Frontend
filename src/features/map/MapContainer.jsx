@@ -13,7 +13,11 @@ import { BackendFeaturesLayer } from './components/BackendFeaturesLayer';
 import { BackendPuntosLayer } from './components/BackendPuntosLayer';
 import { BackendLineasLayer } from './components/BackendLineasLayer';
 import { BackendZonasLayer } from './components/BackendZonasLayer';
+import puntoAcceso from '@/shared/assets/svg/tab_edit/punto_acceso.svg';
 import { useDrawingManager } from '@/shared/hooks/useDrawingManager';
+import { getFeatureById } from '../map/services/featureAPI';
+import { setSelectedFeature, clearSelectedFeature } from '@/shared/redux/features/selectedFeatureSlice';
+import { setActiveTab } from '@/shared/redux/features/mapSlice';
 
 export const MapContainer = () => {
     const dispatch = useDispatch()
@@ -21,6 +25,7 @@ export const MapContainer = () => {
     const { Lineas } = useSelector((state) => state.mapReducer);
     const { Puntos } = useSelector((state) => state.mapReducer);
     const { Zonas } = useSelector((state) => state.mapReducer);
+    const { selectedFeatureData } = useSelector((state) => state.selectedFeatureReducer);
 
     useDrawingManager();
 
@@ -60,11 +65,51 @@ export const MapContainer = () => {
     const mapCanvas = mapRef.current.getCanvas();
     switch(event.mode){
       case 'direct_select':
-        mapCanvas.classList.remove("cursor-crosshair", "cursor-pointer-icon");
-        mapCanvas.classList.add("cursor-pointer-icon");
+        mapCanvas.style.cursor = 'pointer';
+        break;
+      case 'draw_polygon':
+      case 'draw_line_string':
+      case 'draw_point':
+      case 'draw_circle':
+      case 'draw_rectangle':
+      case 'draw_freehand':
+        mapCanvas.style.cursor = 'crosshair';
         break;
       default:
-        mapCanvas.classList.remove("cursor-crosshair", "cursor-pointer-icon");
+        mapCanvas.style.cursor = '';
+    }
+  };
+
+  const onClick = async (event) => {
+    console.log("Map click event:", event);
+    const feature = event.features && event.features[0];
+    console.log("Clicked feature:", feature);
+    if (feature) {
+      console.log("Feature source:", feature.source);
+      console.log("Feature properties:", feature.properties);
+      console.log("Feature ID from properties:", feature.properties && feature.properties.id);
+    }
+
+    if (feature && feature.source === 'backend-data' && feature.id) {
+      try {
+        const response = await getFeatureById(feature.id);
+        dispatch(setSelectedFeature({ id: feature.id, data: response.data }));
+        dispatch(setActiveTab('selección'));
+      } catch (error) {
+        console.error("Error fetching feature details:", error);
+        dispatch(clearSelectedFeature());
+      }
+    } else {
+      dispatch(clearSelectedFeature());
+    }
+  };
+
+  const handleDrawCreate = (event) => {
+    console.log("Feature created:", event.features[0]);
+    if (mapRef.current) {
+      const style = mapRef.current.getStyle();
+      const drawLayers = style.layers.filter(layer => layer.id.startsWith('gl-draw-'));
+      console.log("MapboxDraw related layers after creation:", drawLayers);
     }
   };
     
@@ -79,12 +124,16 @@ export const MapContainer = () => {
             mapStyle={mapType.source}
             style={{width: '100dvw', height: '100dvh'}}
             preserveDrawingBuffer={true}
+            onClick={onClick}
+            onMouseEnter={() => mapRef.current.getCanvas().style.cursor = 'pointer'}
+            onMouseLeave={() => mapRef.current.getCanvas().style.cursor = ''}
+            interactiveLayerIds={['backend-features-fill', 'backend-features-line', 'backend-features-point']}
         >  
           <BackendFeaturesLayer features={backendFeatures} />
           <BackendPuntosLayer features={Puntos}/>
           <BackendLineasLayer features={Lineas}/>
           <BackendZonasLayer features={Zonas}/>
-          <DrawControl position="top-left" modeChange={modeChange}/>
+          <DrawControl position="top-left" modeChange={modeChange} onCreate={handleDrawCreate}/>
           <NavigationControl position='top-left' />
           <ScaleControl position='bottom-left' maxWidth={100} unit='metric'/>
           <CustomLayers />

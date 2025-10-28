@@ -25,7 +25,6 @@ import tramoCable from '@/shared/assets/svg/tab_edit/cable.svg';
 import soporteTMensajeroICon from '@/shared/assets/svg/tab_edit/soporte.svg';
 import reporteIcon from '@/shared/assets/svg/tab_edit/reportes.svg';
 
-
 export const iconsEdit = {
   editar: {
     section: "Editar",
